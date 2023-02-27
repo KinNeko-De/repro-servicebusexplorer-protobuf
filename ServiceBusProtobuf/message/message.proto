@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package message;
+
+message MyMessage {
+  google.protobuf.Timestamp created_at = 1;
+  repeated MySubMessage submessage = 2;
+}
+
+message MySubMessage {
+  string content = 1;
+  MyEnum type_of = 2;
+  oneof addition {
+      Taxes taxes = 3;
+      MorePrecise more_precise = 4;
+  }
+}
+
+enum MyEnum {
+  MY_ENUM_UNSPECIFIED = 0;
+  MY_ENUM_NORMAL = 1;
+  MY_ENUM_TEST = 2;
+}
+
+message Taxes {
+  int32 number = 1;
+}
+
+message MorePrecise {
+  double amount = 1;
+}
