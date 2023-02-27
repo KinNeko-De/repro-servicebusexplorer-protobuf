@@ -16,7 +16,6 @@ internal class Program
 
         IMessage message = CreateProtobufMessage();
         
-        
         await using ServiceBusClient serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
         await using (var sender = serviceBusClient.CreateSender(queueName))
         {
@@ -27,13 +26,12 @@ internal class Program
             };
             await sender.SendMessageAsync(serviceBusMessage);
         }
-        Console.WriteLine("Message send");
+        Console.WriteLine("Message sent.");
 
         await using ServiceBusReceiver receiver = serviceBusClient.CreateReceiver(queueName);
 
         var receivedServiceBusMessage = await ReceiveServiceBusMessage(receiver);
         var receivedMessage = MyMessage.Parser.ParseFrom(receivedServiceBusMessage.Body);
-        
         Console.WriteLine("Message successfully parsed.");
         Console.WriteLine(JsonFormatter.Default.Format(receivedMessage));
 
@@ -46,10 +44,18 @@ internal class Program
             var brokenReceivedMessage = MyMessage.Parser.ParseFrom(brokenServiceBusMessage.Body);
             Console.WriteLine("ServiceBusExplorer now supports binary protobuf messages. Thank you :)");
             Console.WriteLine(JsonFormatter.Default.Format(brokenReceivedMessage));
+            await receiver.CompleteMessageAsync(brokenServiceBusMessage);
         }
         catch (Exception exception)
         {
             Console.WriteLine(exception.ToString());
+            var validByteArray = receivedServiceBusMessage.Body.ToArray();
+            var invalidByteArray = brokenServiceBusMessage.Body.ToArray();
+            Console.WriteLine();
+            Console.WriteLine(validByteArray);
+            Console.WriteLine();
+            Console.WriteLine(invalidByteArray);
+            await receiver.AbandonMessageAsync(brokenServiceBusMessage);
         }
     }
 
@@ -60,10 +66,9 @@ internal class Program
         {
             Console.WriteLine("Receiving message");
             receivedMessage = await receiver.ReceiveMessageAsync();
-            
-        } while (receivedMessage != null);
+        } while (receivedMessage == null);
 
-        return receivedMessage!;
+        return receivedMessage;
     }
 
     private static IMessage CreateProtobufMessage()
