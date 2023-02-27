@@ -37,6 +37,8 @@ internal class Program
 
         Console.WriteLine("Moving service bus message to dead letter queue");
         await receiver.DeadLetterMessageAsync(receivedServiceBusMessage);
+        
+        Console.WriteLine("Now manually resend the dead letter queue message from your service bus explorer."
 
         var brokenServiceBusMessage = await ReceiveServiceBusMessage(receiver);
         try
@@ -51,10 +53,6 @@ internal class Program
             Console.WriteLine(exception.ToString());
             var validByteArray = receivedServiceBusMessage.Body.ToArray();
             var invalidByteArray = brokenServiceBusMessage.Body.ToArray();
-            Console.WriteLine();
-            Console.WriteLine(validByteArray);
-            Console.WriteLine();
-            Console.WriteLine(invalidByteArray);
             await receiver.AbandonMessageAsync(brokenServiceBusMessage);
         }
     }
