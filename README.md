@@ -9,3 +9,6 @@ I move it then to the dead letter queue.
 Then you have to manually resend the dead letter queue.
 
 The program controls if the message can be parsed or if the parsing fails.
+
+Feature request created:
+* [Azure](https://feedback.azure.com/d365community/idea/be0de061-d0a6-ed11-a81b-6045bd8615b0)
